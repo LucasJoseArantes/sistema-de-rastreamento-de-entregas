@@ -15,7 +15,7 @@ public class RastreamentoService {
     private PacoteService pacoteService;
 
     public List<Rastreamento> getRastreamentos(Long id) {
-        Pacote pacote = pacoteService.getPacoteById(id);
+        Pacote pacote = pacoteService.getPacoteById(id).orElse(null);
         return pacote.getRastreamentos();
     }
 

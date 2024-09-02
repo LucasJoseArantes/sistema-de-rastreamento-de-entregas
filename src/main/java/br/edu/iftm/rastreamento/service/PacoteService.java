@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,26 +30,39 @@ public class PacoteService {
         return pacotesList;
     }
 
-    public Pacote getPacoteById(Long id) {
-        return pacoteRepository.findById(id).get();
+    public Optional<Pacote> getPacoteById(Long id) {
+        return pacoteRepository.findById(id);
     }
 
     public Pacote createPacote(Pacote pacote) {
         return pacoteRepository.save(pacote);
     }
 
-    public Pacote updatePacote(Long id, Pacote pacoteDetails) {
-        Pacote pacote = pacoteRepository.findById(id).get();
-        pacote.setId(id);
-        pacote.atualizarStatus(pacoteDetails.getStatus(), Date.from(Instant.now()), "não implementado");
-        //obter o ultimo rastreamento
-        Rastreamento ultiRastreamento = pacote.getRastreamentos().get(pacote.getRastreamentos().size() - 1);
-        rastreamentoRepository.save(ultiRastreamento);
-        return pacoteRepository.save(pacote);
+    public Optional<Pacote> updatePacote(Long id, Pacote pacoteDetails) {
+        return pacoteRepository.findById(id).map(pacote -> {
+            pacote.setId(id);
+            pacote.atualizarStatus(pacoteDetails.getStatus(), Date.from(Instant.now()), "não implementado");
+            // Obter o último rastreamento
+            Rastreamento ultiRastreamento = pacote.getRastreamentos().get(pacote.getRastreamentos().size() - 1);
+            rastreamentoRepository.save(ultiRastreamento);
+            return pacoteRepository.save(pacote);
+        });
     }
 
     public void deletePacote(Long id) {
         Pacote pacote = pacoteRepository.findById(id).get();
         pacoteRepository.delete(pacote);
     }
+
+    // Método para buscar pacotes por status
+    public List<Pacote> findByStatus(String status) {
+        return pacoteRepository.findByStatus(status);
+    }
+
+    // Método para buscar pacotes por destinatário
+    public List<Pacote> findByDestinatario(String destinatario) {
+        return pacoteRepository.findByDestinatario(destinatario);
+    }
+
+    
 }
